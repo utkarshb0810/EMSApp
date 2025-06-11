@@ -10,12 +10,13 @@ const CreateTask = () => {
   const [asignTo, setAsignTo] = useState("");
   const [category, setCategory] = useState("");
 
-  const [newTask, setNewTask] = useState({});
+  // const [newTask, setNewTask] = useState({});
 
   const submitHandler = (e) => {
     e.preventDefault();
 
-    setNewTask({
+    const task = {
+      id: Date.now(), // Unique ID
       taskTitle,
       taskDescription,
       taskDate,
@@ -24,25 +25,33 @@ const CreateTask = () => {
       newTask: true,
       failed: false,
       completed: false,
-    });
+    };
 
-    const data = userData;
-
-    data.forEach(function (elem) {
-      if (asignTo == elem.firstName) {
-        elem.tasks.push(newTask);
-        elem.taskCounts.newTask = elem.taskCounts.newTask + 1;
+    const updatedData = userData.map((user) => {
+      if (user.firstName === asignTo) {
+        const updatedTasks = [...user.tasks, task];
+        return {
+          ...user,
+          tasks: updatedTasks,
+          taskCounts: {
+            ...user.taskCounts,
+            newTask: user.taskCounts.newTask + 1,
+          },
+        };
       }
+      return user;
     });
-    setUserData(data);
-    console.log(data);
 
+    setUserData(updatedData);
+    localStorage.setItem("userData", JSON.stringify(updatedData)); // persist
+
+    // Reset form
     setTaskTitle("");
-    setCategory("");
-    setAsignTo("");
-    setTaskDate("");
     setTaskDescription("");
-  };
+    setTaskDate("");
+    setAsignTo("");
+    setCategory("");
+  };  
 
   return (
     <div className="p-5 bg-[#1c1c1c] mt-5 rounded">
